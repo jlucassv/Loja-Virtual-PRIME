@@ -1,0 +1,109 @@
+@import url('https://fonts.googleapis.com/css2?family=Capriola&family=Onest:wght@100..900&display=swap');
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Onest", sans-serif;
+}
+#navBar {
+    background-color: #FF914D;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    height: 100px;
+    width: 100%;
+    padding: 10px;
+}
+
+#logo {
+    height: 140px;
+}
+#searchInput {
+    width: 500px;
+    height: 40px;
+    border-radius: 5px;
+    border: transparent;
+    padding: 15px;
+}
+.navIcon {
+    height: 35px;
+}
+.loginContainer {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 10px;
+    width: 250px;
+}
+#linkLogin {
+    text-decoration: none;
+    color:white;
+}
+.linkLoginStrong {
+    color: #004AAD;
+}
+#spanLogin {
+    color: white;
+    width: 200px;
+}
+.buttonsContainer {
+    width: 130px;
+    display: flex;
+    justify-content: space-between;
+}
+.submenuNav {
+    background-color: #004AAD;
+    height: 45px;
+    display: flex;
+    align-items: center;
+}
+.submenuItems {
+    color: white;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 150px;
+}
+
+#btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 150px;
+    background-color: transparent;
+    border: transparent;
+}
+
+.title{
+    margin: 10px;
+}
+.card {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 600px;
+    margin: 50px;
+}
+.card-body{
+    width: 100%;
+}
+.card-header {
+    width: 100%;
+}
+
+.tableSection{
+    padding: 50px;
+}
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #004AAD;
+    border-radius: 1px;
+}
+
+::-webkit-scrollbar-track {
+    background-color: #f5f5f5;
+}
