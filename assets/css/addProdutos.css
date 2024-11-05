@@ -14,7 +14,9 @@
     width: 100%;
     padding: 10px;
 }
-
+main {
+    padding: 30px;
+}
 #logo {
     height: 140px;
 }

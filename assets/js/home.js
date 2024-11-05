@@ -86,6 +86,7 @@ function addToCart(newItem) {
 
 
 
+let totalValue = 0; // Variável global para armazenar o valor total
 
 // Função para atualizar a exibição do carrinho
 function updateCart() {
@@ -156,7 +157,7 @@ function updateCart() {
     });
 
     // Atualiza o total
-    const totalPrice = cartItems.reduce((total, item) => total + (parseFloat(item.preco) * item.quantidade), 0);
+    totalPrice = cartItems.reduce((total, item) => total + (parseFloat(item.preco) * item.quantidade), 0);
     const totalDiv = document.getElementById('cartTotal');
     totalDiv.textContent = `Total: R$ ${totalPrice.toFixed(2)}`;
 }
@@ -174,3 +175,21 @@ function removeFromCart(itemToRemove) {
 }
 })
 .catch(error => console.error('Erro ao buscar produtos:', error));
+
+function redirectToCard() {
+    const totalValue = totalPrice.toFixed(2); // Armazena o total formatado
+
+    // Verifica se o total é igual a zero
+    if (totalValue <= 0 || totalValue == undefined) {
+        const failedMsgProduct = document.getElementById('failedMsgProduct');
+        // Define o estilo para display: block
+        failedMsgProduct.style.display = 'flex';
+        setTimeout(() => {
+            failedMsgProduct.style.display = 'none';
+    }, 5000);
+         
+    } else {
+        const link = `../api/card.php?vl=${totalValue}`;
+        window.location.href = link; // Redireciona para o link com o total
+    }
+}

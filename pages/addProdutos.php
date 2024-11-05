@@ -120,7 +120,9 @@ if (!isset($_SESSION['email']) || $_SESSION['email'] !== 'admin@admin.com' || !i
                 </div>
               </div>
         </section>
+        <h1>Lista de Produtos</h1>
         <section class="tableSection">
+            
             <?php
             include_once('../includes/config.php');
                 // Consulta SQL

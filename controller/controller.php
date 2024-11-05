@@ -29,27 +29,5 @@
                      window.location.href = '../pages/login.php';
                  </script>";
         }
-        
-
-        // print_r($resultado);
-
-        //  Se o resultado for maior que zero, quer dizer que tem algum registro com as credenciais 
-        
-        if(mysqli_num_rows($resultado) < 1){
-            // Não há usuário com essas credenciais
-            unset($_SESSION['email']);
-            unset($_SESSION['password']);            
-            echo "<script>    
-                    alert('Usuário ou senha incorretos');
-                    window.location.href = '../pages/login.php';
-                </script>";
-        } else {
-            // Usuário autenticado com sucesso
-            $_SESSION['email'] = $email;
-            $_SESSION['password'] = $senha;
-            echo "<script>                    
-                    window.location.href = '../pages/home.php';
-                </script>";
-        }
     }
 ?>

@@ -1,5 +1,7 @@
 <?php
 session_start();
+
+    
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -16,16 +18,13 @@ session_start();
     <div id="sucessMsgProduct">
         Produto adicionado no carrinho!
     </div>
-    <div id="failedMsgProduct">
-        O carrinho está vazio!
-    </div>
     <header>
         <nav id="navBar">
             <div class="logoContainer">
                 <a href="./home.php"><img id="logo" src="../assets/img/icons/logoLoginSemFundo.png"></a>
             </div>
             <div id="searchContainer">
-                 <form id="searchForm" method="GET" autocomplete="off">
+                 <form id="searchForm" autocomplete="off">
                     <input type="text" name="searchInput" id="searchInput" placeholder="Pesquisar">
                  </form>
                  <div id="suggestions" class="suggestions-box"></div> <!-- Caixa para as sugestões -->                   
@@ -68,61 +67,8 @@ session_start();
      
         </div>
     </header>
-    
-    <main>
-        <section>
-            <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
-                <div class="carousel-inner">
-                    <div class="carousel-item active">
-                    <img class="d-block w-100" src="../assets/img/img1.jpg" alt="Primeiro Slide">
-                    </div>
-                    <div class="carousel-item">
-                    <img class="d-block w-100" src="../assets/img/img2.jpg"" alt="Segundo Slide">
-                    </div>
-                    <div class="carousel-item">
-                    <img class="d-block w-100" src="../assets/img/img3.jpg" alt="Terceiro Slide">
-                    </div>
-                </div>
-                <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="sr-only">Anterior</span>
-                </a>
-                <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="sr-only">Próximo</span>
-                </a>
-            </div>
-        </section>
-    </main>
-    <div class="promotionDiv">
-        <p>PRIMEIRA COMPRA? UTILIZE O CUPOM <strong>APP15</strong>!</p>
-    </div>
-    <!-- <section>
-        <div class="titleProductSection">
-            <h1>Produtos em Destaque</h1>
-        </div>
-        
-    </section> -->
-    <div class="titleProductSection" id="titleOffer">
-            <h1>Ofertas da semana</h1>
-    </div>
-    <section class="offersSection">
-        <div class="offers">
-            <div class="img-principal">
-                <img src="../assets/img/offerImgPrincipal2.jpg" alt="">
-            </div>
-            <div class="img-secundaria">
-                <img src="../assets/img/offerImgSecundaria1.jpg" alt="">
-            </div>
-            <div class="img-secundaria">
-                <img src="../assets/img/offerImgSecundaria2.jpg" alt="">
-            </div>
-        </div>
-    </section>
     <section>
-        <div class="titleProductSection">
-            <h1>Todos os Produtos</h1>
-        </div>
+        <div class="titleResultado"></div>
         <div id="products" class="card-container"></div>
         <div id="cartMainDiv">
             <div class="cartHeader">
@@ -130,13 +76,11 @@ session_start();
                 <h1>Carrinho</h1>
             </div>
             <div id="cartContainer"></div>
-            <div class="totalDiv" >
-                <div id="cartTotal"></div>
-                
-                    <button type="button" id="cartBuyButton" class="btn btn-outline-primary" onclick="redirectToCard()">
-                        Finalizar Pedido
-                    </button>
-                    
+            <div id="cartTotal"></div>
+            <div class="cartBuyButtonDiv">
+                <button id="cartBuyButton" class="btn btn-outline-primary">
+                    Finalizar Pedido
+                </button>
             </div>
         </div>
     </section>
@@ -145,7 +89,6 @@ session_start();
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
-    <script src="../assets/js/home.js"></script>
-    <script src="../assets/js/searchProducts.js"></script>
+    <script src="../assets/js/resultadoProdutos.js"></script>
 </body>
 </html>

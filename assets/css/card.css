@@ -1,0 +1,103 @@
+@import url('https://fonts.googleapis.com/css2?family=Capriola&family=Onest:wght@100..900&display=swap');
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Onest", sans-serif;
+}
+#navBar {
+    background-color: #FF914D;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    height: 100px;
+    width: 100%;
+    padding: 10px;
+}
+
+#logo {
+    height: 140px;
+}
+#searchContainer {
+  position: relative; /* Permite que o #suggestions seja posicionado em relação a este contêiner */
+  width: 500px; /* Largura do contêiner de pesquisa */
+}
+#searchInput {
+  width: 500px; 
+  height: 40px;
+  border-radius: 5px;
+  border: 1px solid #ccc; 
+  padding: 10px; 
+  box-sizing: border-box; 
+}
+
+#suggestions {
+  border: 1px solid #ccc; /* Borda da lista de sugestões */
+  border-top: none; /* Remove a borda superior para que pareça que continua o input */
+  max-height: 200px; /* Altura máxima da lista */
+  overflow-y: auto; /* Permite rolagem se houver muitos itens */
+  position: absolute; /* Posiciona a lista de sugestões em relação ao contêiner */
+  top: 40px; /* Coloca a lista logo abaixo do input (altura do input) */
+  left: 0; /* Alinha a lista à esquerda do contêiner */
+  right: 0; /* Faz a lista ocupar toda a largura do contêiner */
+  background-color: white; /* Cor de fundo da lista de sugestões */
+  z-index: 1000; /* Garante que a lista fique acima de outros elementos */
+  display: none; /* Oculta a lista inicialmente */
+}
+
+.suggestion-item {
+  background-color: white;
+  padding: 10px; /* Adiciona algum preenchimento para os itens */
+  cursor: pointer;
+}
+
+.suggestion-item:hover {
+  background-color: #f0f0f0; /* Efeito de hover para os itens */
+}
+
+.navIcon {
+    height: 35px;
+    cursor: pointer;
+}
+.loginContainer {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 10px;
+    width: 250px;
+}
+#linkLogin {
+    text-decoration: none;
+    color:white;
+}
+.linkLoginStrong {
+    color: #004AAD;
+}
+#spanLogin {
+    color: white;
+    width: 200px;
+}
+.buttonsContainer {
+    width: 130px;
+    display: flex;
+    height: 50px;
+    align-items: center;  
+    justify-content: space-between;
+}
+.submenuNav {
+    background-color: #004AAD;
+    height: 45px;
+    display: flex;
+    align-items: center;
+}
+.submenuItems {
+    color: white;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 150px;
+}
+main {
+    padding: 30px;
+}

@@ -14,5 +14,9 @@
     // } else {
     //     echo "Conexão efetuada!";
     // }
-    
+    return [
+        'accesstoken' => 'TEST-2596423661439279-110405-445e8f92f230457c373d9183f0c71475-327334435',
+        'url_notification_sdk' => 'https://95d60c603db969.lhr.life/curso/sdk/notification.php',
+        'url_notification_api' => 'https://95d60c603db969.lhr.life/curso/api/notification.php'
+    ];
 ?>
