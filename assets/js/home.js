@@ -176,20 +176,37 @@ function removeFromCart(itemToRemove) {
 })
 .catch(error => console.error('Erro ao buscar produtos:', error));
 
-function redirectToCard() {
-    const totalValue = totalPrice.toFixed(2); // Armazena o total formatado
-
-    // Verifica se o total é igual a zero
-    if (totalValue <= 0 || totalValue == undefined) {
-        const failedMsgProduct = document.getElementById('failedMsgProduct');
-        // Define o estilo para display: block
-        failedMsgProduct.style.display = 'flex';
-        setTimeout(() => {
-            failedMsgProduct.style.display = 'none';
-    }, 5000);
-         
-    } else {
-        const link = `../api/card.php?vl=${totalValue}`;
-        window.location.href = link; // Redireciona para o link com o total
+document.getElementById('cartBuyButton').addEventListener('click', () => {
+    if (cartItems.length === 0) {
+        alert("Seu carrinho está vazio!");
+        return;
     }
-}
+
+    // Prepara os itens para a API do Mercado Pago
+    const itemsForAPI = cartItems.map(item => ({
+        id: item.id_produto,
+        title: item.nome,
+        quantity: item.quantidade,
+        currency_id: "BRL",
+        unit_price: parseFloat(item.preco)
+    }));
+
+    // Envia a requisição para o backend (apimercadopago.php)
+    fetch('../apimercadopago.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ items: itemsForAPI })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.init_point) {
+            // Redireciona para o link de pagamento
+            window.location.href = data.init_point;
+        } else {
+            alert("Erro ao gerar o link de pagamento.");
+        }
+    })
+    .catch(error => console.error('Erro ao processar pagamento:', error));
+});

@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once '../apimercadopago.php';
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -97,12 +98,6 @@ session_start();
     <div class="promotionDiv">
         <p>PRIMEIRA COMPRA? UTILIZE O CUPOM <strong>APP15</strong>!</p>
     </div>
-    <!-- <section>
-        <div class="titleProductSection">
-            <h1>Produtos em Destaque</h1>
-        </div>
-        
-    </section> -->
     <div class="titleProductSection" id="titleOffer">
             <h1>Ofertas da semana</h1>
     </div>
@@ -132,10 +127,9 @@ session_start();
             <div id="cartContainer"></div>
             <div class="totalDiv" >
                 <div id="cartTotal"></div>
-                
-                    <button type="button" id="cartBuyButton" class="btn btn-outline-primary" onclick="redirectToCard()">
-                        Finalizar Pedido
-                    </button>
+                <button type="button" id="cartBuyButton" class="btn btn-outline-primary" onclick="window.location.href='<?php echo $link_pagamento; ?>'">
+                    Finalizar Pedido
+                </button>
                     
             </div>
         </div>
