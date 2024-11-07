@@ -17,6 +17,9 @@ require_once '../apimercadopago.php';
     <div id="sucessMsgProduct">
         Produto adicionado no carrinho!
     </div>
+    <div id="sucessMsgPayment">
+        Pagamento realizado com sucesso!
+    </div>
     <div id="failedMsgProduct">
         O carrinho está vazio!
     </div>
@@ -127,9 +130,11 @@ require_once '../apimercadopago.php';
             <div id="cartContainer"></div>
             <div class="totalDiv" >
                 <div id="cartTotal"></div>
-                <button type="button" id="cartBuyButton" class="btn btn-outline-primary" onclick="window.location.href='<?php echo $link_pagamento; ?>'">
-                    Finalizar Pedido
-                </button>
+                <form method="POST">
+                    <button type="submit" class="btn btn-outline-primary">
+                        Finalizar Pedido
+                    </button>
+                </form>
                     
             </div>
         </div>

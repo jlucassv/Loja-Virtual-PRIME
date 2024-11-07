@@ -355,6 +355,24 @@
   box-shadow: 0px 1px 10px black;
   display: none;
 }
+
+#sucessMsgPayment {
+  display: flex;
+  width: 300px;
+  justify-content: center;
+  align-items: center;
+  background-color: #01a22c;
+  color: white;
+  height: 50px;
+  border-radius: 5px;
+  position: fixed;
+  z-index: 1000;
+  top: 0;
+  left: 40%;
+  margin-top: 20px;
+  box-shadow: 0px 1px 10px black;
+  display: none;
+}
 #failedMsgProduct {
   display: flex;
   width: 300px;
