@@ -1,32 +1,39 @@
 <?php
 date_default_timezone_set('America/Sao_Paulo');
+
 // Função para gerar o link de pagamento e calcular o valor total
 function gerarLinkPagamento() {
-    $access_token = "TEST-2596423661439279-110405-445e8f92f230457c373d9183f0c71475-327334435";
+    global $user_id, $conexao; // Usar a variável global do ID do usuário e a conexão com o banco
     
-    // Definição dos itens
-    $items = [
-        [
-            "id" => "1",
-            "title" => "Camisa",
-            "quantity" => 2,
-            "currency_id" => "BRL",
-            "unit_price" => 100.00
-        ],
-        [
-            "id" => "2",
-            "title" => "Calça",
-            "quantity" => 1,
-            "currency_id" => "BRL",
-            "unit_price" => 100.00
-        ]
-    ];
-    
-    // Calcular o valor total pago
+    // Definição dos itens do carrinho do usuário
+    $items = [];
     $valor_pago = 0;
-    foreach ($items as $item) {
-        $valor_pago += $item["quantity"] * $item["unit_price"];
+
+    // Consulta para pegar os itens do carrinho do usuário
+    $sql = "SELECT p.id_produto, p.nome AS title, c.quantidade, p.preco AS unit_price 
+            FROM carrinho c 
+            JOIN produtos p ON c.id_produto = p.id_produto 
+            WHERE c.id_usuario = ?";
+    
+    $stmt = $conexao->prepare($sql);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $resultado = $stmt->get_result();
+
+    while ($item = $resultado->fetch_assoc()) {
+        $items[] = [
+            "id" => $item["id_produto"],
+            "title" => $item["title"],
+            "quantity" => $item["quantidade"],
+            "currency_id" => "BRL",
+            "unit_price" => (float)$item["unit_price"]
+        ];
+
+        // Calculando o valor total
+        $valor_pago += $item["quantidade"] * $item["unit_price"];
     }
+
+    $stmt->close();
 
     // Dados do pagamento incluindo o valor total calculado
     $payment_data = [
@@ -38,8 +45,9 @@ function gerarLinkPagamento() {
         ],
         "auto_return" => "all"
     ];
-    
+
     // Configuração da requisição cURL
+    $access_token = "TEST-2596423661439279-110405-445e8f92f230457c373d9183f0c71475-327334435";
     $curl = curl_init();
 
     curl_setopt_array($curl, [
@@ -51,7 +59,7 @@ function gerarLinkPagamento() {
             "Content-Type: application/json"
         ],
         CURLOPT_POSTFIELDS => json_encode($payment_data),
-        CURLOPT_SSL_VERIFYPEER => false, 
+        CURLOPT_SSL_VERIFYPEER => false,
         CURLOPT_SSL_VERIFYHOST => false
     ]);
 
@@ -70,7 +78,6 @@ function gerarLinkPagamento() {
     }
 }
 
-// Função para registrar o pagamento no banco de dados
 // Função para registrar o pagamento no banco de dados
 function registrarPagamentoNoBanco($id_usuario, $nome_comprador, $email_comprador, $id_preference, $valor_pago) {
     $conn = new mysqli("localhost", "root", "", "primedb");
@@ -100,7 +107,6 @@ function registrarPagamentoNoBanco($id_usuario, $nome_comprador, $email_comprado
     $stmt->close();
     $conn->close();
 }
-
 
 // Código para pegar o ID, nome e email do usuário baseado no email da sessão
 $user_id = null;
@@ -203,3 +209,4 @@ if (isset($_GET['collection_status'], $_GET['payment_type'], $_GET['preference_i
     // Atualizar o pagamento no banco de dados com os dados recebidos
     atualizarPagamento($status, $payment_type, $preference_id);
 }
+?>
