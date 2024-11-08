@@ -124,16 +124,53 @@ if (isset($_SESSION['email'])) {
     $email_usuario = $usuario['email'];  // Atribui o e-mail do usuário
 }
 
+// Funções para limpar o carrinho e atualizar o estoque
+
+// Função para excluir os produtos do carrinho após a finalização do pedido
+function limparCarrinho($id_usuario) {
+    global $conexao; // Inclui o arquivo de configuração do banco de dados
+
+    $sql = "DELETE FROM carrinho WHERE id_usuario = ?";
+    $stmt = $conexao->prepare($sql);
+    $stmt->bind_param("i", $id_usuario);
+
+    if ($stmt->execute()) {
+        echo "Carrinho limpo com sucesso.";
+    } else {
+        echo "Erro ao limpar o carrinho: " . $stmt->error;
+    }
+
+    $stmt->close();
+}
+
+// Função para atualizar o estoque conforme a quantidade finalizada no pedido
+function atualizarEstoque($items) {
+    global $conexao; // Inclui o arquivo de configuração do banco de dados
+
+    foreach ($items as $item) {
+        $sql = "UPDATE produtos SET quantidade_estoque = quantidade_estoque - ? WHERE id_produto = ?";
+        $stmt = $conexao->prepare($sql);
+        $stmt->bind_param("ii", $item['quantity'], $item['id']);
+
+        if (!$stmt->execute()) {
+            echo "Erro ao atualizar estoque para o produto " . $item['id'] . ": " . $stmt->error;
+        }
+
+        $stmt->close();
+    }
+}
+
 // Verifique se o formulário foi submetido
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Verifique se o ID do usuário está disponível
     if ($user_id) {
-        // Gerar link de pagamento e obter dados da resposta
         $response_data = gerarLinkPagamento();
         if ($response_data) {
-            // Registrar no banco de dados com os dados iniciais, incluindo o valor pago
             $payment_id = registrarPagamentoNoBanco($user_id, $nome_usuario, $email_usuario, $response_data["id"], $response_data["valor_pago"]);
             if ($payment_id) {
+                // Limpar o carrinho e atualizar o estoque antes de redirecionar
+                limparCarrinho($user_id);
+                atualizarEstoque($response_data['items']);
+
                 // Redireciona para o link de pagamento
                 $link_pagamento = $response_data["init_point"];
                 header("Location: " . $link_pagamento);
@@ -143,10 +180,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo "Erro ao gerar o link de pagamento.";
         }
     } else {
-        // Exibir alerta se o usuário não estiver logado
         echo "<script>
                 alert('Usuário não está logado. Por favor, faça login para finalizar a compra.');
-                window.location.href = 'login.php'; // Redireciona o usuário para a página de login
+                window.location.href = 'login.php';
               </script>";
     }
 }
@@ -209,4 +245,5 @@ if (isset($_GET['collection_status'], $_GET['payment_type'], $_GET['preference_i
     // Atualizar o pagamento no banco de dados com os dados recebidos
     atualizarPagamento($status, $payment_type, $preference_id);
 }
-?>
+
+
