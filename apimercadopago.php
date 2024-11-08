@@ -78,24 +78,56 @@ function gerarLinkPagamento() {
     }
 }
 
+//Funcao pra salvar os produtos do carrinho nas tabelas pedidos_vendas e produtos_pedidos, como um histórico.
+function salvarPedido($user_id, $valor_total, $items) {
+    global $conexao;
+
+    // Passo 1: Inserir o pedido na tabela `pedidos_vendas`
+    $stmt = $conexao->prepare("INSERT INTO pedidos_vendas (id_usuario, valor_total, status_pagamento, metodo_pagamento) VALUES (?, ?, 'Pendente', 'Não Especificado')");
+    $stmt->bind_param("id", $user_id, $valor_total);
+
+    if ($stmt->execute()) {
+        // Passo 2: Captura do `id_pedido_venda`
+        $id_pedido_venda = $conexao->insert_id;
+
+        // Passo 3: Inserir cada produto em `produtos_pedidos`
+        $stmt_produto = $conexao->prepare("INSERT INTO produtos_pedidos (id_pedido_venda, id_produto, quantidade, preco_unitario) VALUES (?, ?, ?, ?)");
+        foreach ($items as $item) {
+            $stmt_produto->bind_param("iiid", $id_pedido_venda, $item['id'], $item['quantity'], $item['unit_price']);
+            $stmt_produto->execute();
+        }
+        $stmt_produto->close();
+        
+        return $id_pedido_venda;
+    } else {
+        echo "Erro ao salvar o pedido: " . $stmt->error;
+        return false;
+    }
+    $stmt->close();
+}
+
+
+
+
+
 // Função para registrar o pagamento no banco de dados
-function registrarPagamentoNoBanco($id_usuario, $nome_comprador, $email_comprador, $id_preference, $valor_pago) {
+function registrarPagamentoNoBanco($id_usuario, $nome_comprador, $email_comprador, $id_preference, $valor_pago, $id_pedido_venda) {
     $conn = new mysqli("localhost", "root", "", "primedb");
 
     if ($conn->connect_error) {
         die("Erro de conexão: " . $conn->connect_error);
     }
 
-    // Prepara a consulta de inserção sem o campo 'data_pagamento'
-    $stmt = $conn->prepare("INSERT INTO pagamentos (id_usuario, id_transacao, status_pagamento, valor_pago, metodo_pagamento, nome_comprador, email_comprador, id_preference) 
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+    // Prepara a consulta de inserção com o campo 'id_pedido_venda'
+    $stmt = $conn->prepare("INSERT INTO pagamentos (id_usuario, id_transacao, status_pagamento, valor_pago, metodo_pagamento, nome_comprador, email_comprador, id_preference, id_pedido_venda) 
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
     // Dados iniciais: status = pendente, método de pagamento não especificado
     $status_pagamento = "pendente";
     $metodo_pagamento = "não especificado"; // Inicialmente não especificado
 
     // Bind dos parâmetros com os valores necessários
-    $stmt->bind_param("issdssss", $id_usuario, $id_preference, $status_pagamento, $valor_pago, $metodo_pagamento, $nome_comprador, $email_comprador, $id_preference);
+    $stmt->bind_param("issdssssi", $id_usuario, $id_preference, $status_pagamento, $valor_pago, $metodo_pagamento, $nome_comprador, $email_comprador, $id_preference, $id_pedido_venda);
 
     if ($stmt->execute()) {
         return $conn->insert_id; // Retorna o ID do pagamento inserido
@@ -145,7 +177,7 @@ function limparCarrinho($id_usuario) {
 
 // Função para atualizar o estoque conforme a quantidade finalizada no pedido
 function atualizarEstoque($items) {
-    global $conexao; // Inclui o arquivo de configuração do banco de dados
+    global $conexao;
 
     foreach ($items as $item) {
         $sql = "UPDATE produtos SET quantidade_estoque = quantidade_estoque - ? WHERE id_produto = ?";
@@ -160,21 +192,29 @@ function atualizarEstoque($items) {
     }
 }
 
-// Verifique se o formulário foi submetido
+// Verifique se o botão foi clicado
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($user_id) {
         $response_data = gerarLinkPagamento();
         if ($response_data) {
-            $payment_id = registrarPagamentoNoBanco($user_id, $nome_usuario, $email_usuario, $response_data["id"], $response_data["valor_pago"]);
-            if ($payment_id) {
-                // Limpar o carrinho e atualizar o estoque antes de redirecionar
-                limparCarrinho($user_id);
-                atualizarEstoque($response_data['items']);
+            // Adicione esta linha para salvar o pedido
+            $id_pedido = salvarPedido($user_id, $response_data['valor_pago'], $response_data['items']);
+            
+            if ($id_pedido) {
+                // Agora passamos o id_pedido para registrar o pagamento
+                $payment_id = registrarPagamentoNoBanco($user_id, $nome_usuario, $email_usuario, $response_data["id"], $response_data["valor_pago"], $id_pedido);
+                if ($payment_id) {
+                    // Limpar o carrinho e atualizar o estoque antes de redirecionar
+                    limparCarrinho($user_id);
+                    atualizarEstoque($response_data['items']);
 
-                // Redireciona para o link de pagamento
-                $link_pagamento = $response_data["init_point"];
-                header("Location: " . $link_pagamento);
-                exit();
+                    // Redireciona para o link de pagamento
+                    $link_pagamento = $response_data["init_point"];
+                    header("Location: " . $link_pagamento);
+                    exit();
+                }
+            } else {
+                echo "Erro ao salvar o pedido no banco de dados.";
             }
         } else {
             echo "Erro ao gerar o link de pagamento.";
@@ -186,8 +226,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               </script>";
     }
 }
-
-// Função para atualizar os dados do pagamento no banco de dados após a resposta da API
+// Função para atualizar os dados do pagamento nas tabelas 'pagamentos' e 'pedidos_vendas' após a resposta da API
 function atualizarPagamento($status, $payment_type, $preference_id) {
     // Conexão com o banco de dados
     $conn = new mysqli("localhost", "root", "", "primedb");
@@ -202,15 +241,20 @@ function atualizarPagamento($status, $payment_type, $preference_id) {
         $data_pagamento = date('Y-m-d H:i:s'); // Hora atual
     }
 
-    // Preparando a query SQL para atualizar os dados de pagamento com o preference_id correspondente
-    $stmt = $conn->prepare("UPDATE pagamentos 
-                            SET status_pagamento = ?, metodo_pagamento = ?, data_pagamento = ? 
-                            WHERE id_preference = ?");
+    // Preparando a query SQL para atualizar os dados de pagamento na tabela 'pagamentos'
+    $stmt_pagamento = $conn->prepare("UPDATE pagamentos 
+                                      SET status_pagamento = ?, metodo_pagamento = ?, data_pagamento = ? 
+                                      WHERE id_preference = ?");
+    $stmt_pagamento->bind_param("ssss", $status, $payment_type, $data_pagamento, $preference_id);
 
-    // Bind dos parâmetros
-    $stmt->bind_param("ssss", $status, $payment_type, $data_pagamento, $preference_id);
+    // Preparando a query SQL para atualizar os dados de pagamento na tabela 'pedidos_vendas'
+    $stmt_pedido = $conn->prepare("UPDATE pedidos_vendas 
+                                   SET status_pagamento = ?, metodo_pagamento = ? 
+                                   WHERE id_pedido_venda = (SELECT id_pedido_venda FROM pagamentos WHERE id_preference = ?)");
+    $stmt_pedido->bind_param("sss", $status, $payment_type, $preference_id);
 
-    if ($stmt->execute()) {
+    // Executando as atualizações e verificando o sucesso
+    if ($stmt_pagamento->execute() && $stmt_pedido->execute()) {
         echo "<script>
             window.onload = function() {
                 const sucessMsgPayment = document.getElementById('sucessMsgPayment');
@@ -228,14 +272,16 @@ function atualizarPagamento($status, $payment_type, $preference_id) {
             };
           </script>";
     } else {
-        echo "Erro ao atualizar o pagamento: " . $stmt->error;
+        echo "Erro ao atualizar o pagamento: " . $stmt_pagamento->error . " - " . $stmt_pedido->error;
     }
 
-    $stmt->close();
+    // Fechando as instruções e a conexão
+    $stmt_pagamento->close();
+    $stmt_pedido->close();
     $conn->close();
 }
 
-// Verifique se os parâmetros da URL estão presentes
+// Verifique se os parâmetros da resposta da URL estão presentes
 if (isset($_GET['collection_status'], $_GET['payment_type'], $_GET['preference_id'])) {
     // Pegando os parâmetros da URL
     $status = $_GET['collection_status']; // Status do pagamento
